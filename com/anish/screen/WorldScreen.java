@@ -13,7 +13,7 @@ import asciiPanel.AsciiPanel;
 public class WorldScreen implements Screen {
 
     private World world;
-    private Monster[][] bros= new Monster[15][20];
+    private Monster[][] bros= new Monster[20][20];
     String[] sortSteps;
 
     public WorldScreen() {
@@ -37,7 +37,7 @@ public class WorldScreen implements Screen {
         world.put(bros[5], 20, 10);
         world.put(bros[6], 22, 10);
 */
-        createMonsters(world, 300);
+        createMonsters(world, 400);
 
         QuickSorter2D<Monster> b = new QuickSorter2D<>();
         b.load(bros);
