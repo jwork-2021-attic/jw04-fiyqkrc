@@ -6,59 +6,55 @@ import java.awt.event.KeyEvent;
 import com.anish.calabashbros.BubbleSorter;
 import com.anish.calabashbros.Calabash;
 import com.anish.calabashbros.World;
+import com.anish.calabashbros.Wall;
+import com.anish.calabashbros.DeepSearchMazeSolver;
+import com.anish.calabashbros.Thing;
+
+import mazeGenerator.MazeGenerator;
 
 import asciiPanel.AsciiPanel;
 
 public class WorldScreen implements Screen {
 
     private World world;
-    private Calabash[] bros;
     String[] sortSteps;
+    int mazeDim=World.WIDTH<World.HEIGHT? World.WIDTH:World.HEIGHT;
 
     public WorldScreen() {
         world = new World();
-
-        bros = new Calabash[7];
-
-        bros[3] = new Calabash(new Color(204, 0, 0), 1, world);
-        bros[5] = new Calabash(new Color(255, 165, 0), 2, world);
-        bros[1] = new Calabash(new Color(252, 233, 79), 3, world);
-        bros[0] = new Calabash(new Color(78, 154, 6), 4, world);
-        bros[4] = new Calabash(new Color(50, 175, 255), 5, world);
-        bros[6] = new Calabash(new Color(114, 159, 207), 6, world);
-        bros[2] = new Calabash(new Color(173, 127, 168), 7, world);
-
-        world.put(bros[0], 10, 10);
-        world.put(bros[1], 12, 10);
-        world.put(bros[2], 14, 10);
-        world.put(bros[3], 16, 10);
-        world.put(bros[4], 18, 10);
-        world.put(bros[5], 20, 10);
-        world.put(bros[6], 22, 10);
-
-        BubbleSorter<Calabash> b = new BubbleSorter<>();
-        b.load(bros);
-        b.sort();
-
-        sortSteps = this.parsePlan(b.getPlan());
-    }
-
-    private String[] parsePlan(String plan) {
-        return plan.split("\n");
-    }
-
-    private void execute(Calabash[] bros, String step) {
-        String[] couple = step.split("<->");
-        getBroByRank(bros, Integer.parseInt(couple[0])).swap(getBroByRank(bros, Integer.parseInt(couple[1])));
-    }
-
-    private Calabash getBroByRank(Calabash[] bros, int rank) {
-        for (Calabash bro : bros) {
-            if (bro.getRank() == rank) {
-                return bro;
+        MazeGenerator maze = new MazeGenerator(mazeDim);
+        maze.generateMaze();
+        boolean[][] mazeArray=getArrayRawMaze(maze);
+        System.out.println(maze.getRawMaze());
+        for (int x=0;x<mazeDim;x++)
+            for(int y=0;y<mazeDim;y++){
+                if(mazeArray[x][y]==false){
+                    Wall wall=new Wall(world);
+                    world.put(wall, x, y);
+                }
             }
+        DeepSearchMazeSolver solver=new DeepSearchMazeSolver();
+        solver.loadMaze(mazeArray);
+        String solution=solver.getSolution();
+        sortSteps=solution.split("\n");
+    }
+
+    private boolean[][] getArrayRawMaze(MazeGenerator maze){
+        String mazeStr=maze.getRawMaze();
+        String[] mazeStrs = mazeStr.split("\n");
+        boolean[][] res=new boolean[mazeDim][mazeDim];
+        int x=0,y=0;
+        for(String str : mazeStrs){
+            y=0;
+            str=str.substring(1, str.length()-1);
+            String[] strs =str.split(", ");
+            for(String s:strs) {
+                res[x][y]=Integer.parseInt(s)==1?true:false;
+                y++;
+            }
+            x++;
         }
-        return null;
+        return res;
     }
 
     @Override
@@ -74,12 +70,23 @@ public class WorldScreen implements Screen {
     }
 
     int i = 0;
+    Thing current;
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
+        if(i==0){
 
-        if (i < this.sortSteps.length) {
-            this.execute(bros, sortSteps[i]);
+            current=world.get(0,0);
+        }
+        else if (i < this.sortSteps.length) {
+            String step=sortSteps[i];
+            if (step!=""){
+                String[] xy=step.substring(1, step.length()-1).split(",");
+                int x=current.getX();
+                int y=current.getY();
+                world.put(current,Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
+                world.put(new Wall(world),x,y);
+            }
             i++;
         }
 
