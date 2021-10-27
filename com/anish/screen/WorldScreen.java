@@ -24,7 +24,6 @@ public class WorldScreen implements Screen {
         MazeGenerator maze = new MazeGenerator(mazeDim);
         maze.generateMaze();
         boolean[][] mazeArray=getArrayRawMaze(maze);
-        System.out.println(maze.getRawMaze());
         for (int x=0;x<mazeDim;x++)
             for(int y=0;y<mazeDim;y++){
                 if(mazeArray[x][y]==false){
