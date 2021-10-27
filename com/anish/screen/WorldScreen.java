@@ -2,22 +2,23 @@ package com.anish.screen;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 
-import com.anish.calabashbros.BubbleSorter;
-import com.anish.calabashbros.Calabash;
 import com.anish.calabashbros.World;
+import com.anish.calabashbros.Monster;
+import com.anish.calabashbros.QuickSorter2D;
 
 import asciiPanel.AsciiPanel;
 
 public class WorldScreen implements Screen {
 
     private World world;
-    private Calabash[] bros;
+    private Monster[][] bros= new Monster[15][20];
     String[] sortSteps;
 
     public WorldScreen() {
         world = new World();
-
+/*
         bros = new Calabash[7];
 
         bros[3] = new Calabash(new Color(204, 0, 0), 1, world);
@@ -35,28 +36,66 @@ public class WorldScreen implements Screen {
         world.put(bros[4], 18, 10);
         world.put(bros[5], 20, 10);
         world.put(bros[6], 22, 10);
+*/
+        createMonsters(world, 300);
 
-        BubbleSorter<Calabash> b = new BubbleSorter<>();
+        QuickSorter2D<Monster> b = new QuickSorter2D<>();
         b.load(bros);
         b.sort();
 
         sortSteps = this.parsePlan(b.getPlan());
     }
 
+    private void createMonsters(World line,int num){
+        int[] place = new int[num]; 
+        for(int i:place)
+            place[i] = 0;
+        int[] rgb={0,255,0};
+        String[] changeRule={"bu","gd","ru","bd","gu","rd"};
+        int deep = 1536/num;
+        for(int i=0;i<num;i++){
+            String action = changeRule[(i/(num/6))%6];
+            int index=0;
+            if(action.charAt(0)=='b'){
+                index=2;
+            }
+            else if(action.charAt(0)=='g')
+                index=1;
+            else 
+                index=0;
+            if(action.charAt(1)=='u'){
+                rgb[index]=(rgb[index]+deep)%256;
+            }
+            else
+                rgb[index]=(rgb[index]-deep)%256;
+            Monster monster = new Monster(new Color(rgb[0], rgb[1], rgb[2]),i,line);
+            int rand = (new Random()).nextInt(num);
+            rand=rand%num;
+            while(place[rand%num]!=0){
+                rand++;
+                rand=rand%num;
+            }
+            bros[rand/20][rand%20]=monster;
+            line.put(monster,10+2*(rand%20),5+2*(rand/20));
+            place[rand]=1;
+        }
+    }
+
     private String[] parsePlan(String plan) {
         return plan.split("\n");
     }
 
-    private void execute(Calabash[] bros, String step) {
+    private void execute(Monster[][] bros, String step) {
         String[] couple = step.split("<->");
         getBroByRank(bros, Integer.parseInt(couple[0])).swap(getBroByRank(bros, Integer.parseInt(couple[1])));
     }
 
-    private Calabash getBroByRank(Calabash[] bros, int rank) {
-        for (Calabash bro : bros) {
-            if (bro.getRank() == rank) {
-                return bro;
-            }
+    private Monster getBroByRank(Monster[][] bross, int rank) {
+        for (Monster[] bros : bross) {
+            for (Monster bro: bros)
+                if (bro.getRank() == rank) {
+                    return bro;
+                }
         }
         return null;
     }
