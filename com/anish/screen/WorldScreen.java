@@ -3,7 +3,6 @@ package com.anish.screen;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
-import com.anish.calabashbros.BubbleSorter;
 import com.anish.calabashbros.Calabash;
 import com.anish.calabashbros.World;
 import com.anish.calabashbros.Wall;
@@ -75,20 +74,24 @@ public class WorldScreen implements Screen {
     @Override
     public Screen respondToUserInput(KeyEvent key) {
         if(i==0){
-
-            current=world.get(0,0);
+            Calabash cala=new Calabash(new Color(204,0,0), 1, world);
+            String step= sortSteps[0];
+            String[] xy=step.substring(1, step.length()-1).split(",");
+            world.put(cala,Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
+            current=cala;
         }
         else if (i < this.sortSteps.length) {
             String step=sortSteps[i];
             if (step!=""){
                 String[] xy=step.substring(1, step.length()-1).split(",");
+                Thing temp=world.get(Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
                 int x=current.getX();
                 int y=current.getY();
                 world.put(current,Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
-                world.put(new Wall(world),x,y);
+                world.put(temp,x,y);
             }
-            i++;
         }
+        i++;
 
         return this;
     }
