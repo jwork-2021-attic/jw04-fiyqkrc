@@ -5,10 +5,12 @@ import java.awt.event.KeyEvent;
 
 import com.anish.calabashbros.Calabash;
 import com.anish.calabashbros.World;
+import com.anish.calabashbros.DeepSearchMazeSolver.Position;
 import com.anish.calabashbros.Wall;
 import com.anish.calabashbros.DeepSearchMazeSolver;
 import com.anish.calabashbros.MazeSolver;
 import com.anish.calabashbros.Thing;
+import com.anish.calabashbros.Floor;
 
 import mazeGenerator.MazeGenerator;
 
@@ -33,10 +35,14 @@ public class WorldScreen implements Screen {
                 }
             }
         MazeSolver solver=new DeepSearchMazeSolver();
-        int[] start={0,0};
-        int[] end={mazeArray.length-1,mazeArray[0].length-1};
+        Position start=DeepSearchMazeSolver.getRandomNode(mazeArray);
+        Position end=DeepSearchMazeSolver.getRandomNode(mazeArray);
+        world.put(new Calabash(new Color(200,0,0), 1, world),start.getX(),start.getY());
+        world.put(new Calabash(new Color(0,200,0), 2, world),end.getX(),end.getY());
+        this.current=world.get(start.getX(), start.getY());
         solver.loadMaze(mazeArray,start,end);
         String solution=solver.getSolution();
+        System.out.println(solution);
         sortSteps=solution.split("\n");
     }
 
@@ -75,22 +81,14 @@ public class WorldScreen implements Screen {
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
-        if(i==0){
-            Calabash cala=new Calabash(new Color(204,0,0), 1, world);
-            String step= sortSteps[0];
-            String[] xy=step.substring(1, step.length()-1).split(",");
-            world.put(cala,Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
-            current=cala;
-        }
-        else if (i < this.sortSteps.length) {
+        if (i < this.sortSteps.length) {
             String step=sortSteps[i];
             if (step!=""){
                 String[] xy=step.substring(1, step.length()-1).split(",");
-                Thing temp=world.get(Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
                 int x=current.getX();
                 int y=current.getY();
+                world.put(new Floor(world),x,y);
                 world.put(current,Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));
-                world.put(temp,x,y);
             }
         }
         i++;

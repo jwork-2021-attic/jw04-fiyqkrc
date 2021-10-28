@@ -6,147 +6,180 @@ import java.util.Stack;
 
 import mazeGenerator.*;
 
-public class DeepSearchMazeSolver implements MazeSolver{
+public class DeepSearchMazeSolver implements MazeSolver {
 
     private boolean maze[][];
-    private String solution="";
+    private String solution = "";
 
     private Position start;
     private Position end;
 
     @Override
-    public void loadMaze(boolean[][] maze,int[] start,int[] end) {
-        this.maze=maze;
-        this.start=new Position(start[0], start[1]);
-        this.end=new Position(end[0], end[1]);
+    public void loadMaze(boolean[][] maze, Position start, Position end) {
+        this.maze = maze;
+        this.start = start;
+        this.end = end;
     }
 
     @Override
     public String getSolution() {
-        if(solution=="")
-        {
+        if (solution == "") {
             this.execute();
             return solution;
-        }
-        else
+        } else
             return solution;
     }
 
     private int width;
     private int height;
 
-    private void execute(){
-        width=maze[0].length;
-        height=maze.length;
-        Stack<Position> cross=new Stack<>();
-        Stack<Position> path=new Stack<>();
+    private void execute() {
+        width = maze[0].length;
+        height = maze.length;
+        Stack<Position> cross = new Stack<>();
+        Stack<Position> path = new Stack<>();
 
-        Position current=start;
-        while(!current.isEqualWith(end)){
-            ArrayList<Position> selectable=detectRoad(current);
-            if(selectable.isEmpty()){
-                while(!path.isEmpty()){
-                    Position node=path.pop();
-                    if(node.isEqualWith(cross.peek())){
-                        maze[current.getX()][current.getY()]=false;
+        Position current = start;
+        while (!current.isEqualWith(end)) {
+            //solution+= "{" + current.getX() + "," + current.getY() + "}\n";
+            ArrayList<Position> selectable = detectRoad(current);
+            if (selectable.isEmpty()) {
+                while (!path.isEmpty()) {
+                    Position node = path.pop();
+                    if (node.isEqualWith(cross.peek())) {
+                        maze[current.getX()][current.getY()] = false;
                         cross.pop();
-                        current=node;
+                        current = node;
                         break;
-                    }
-                    else{
-                        maze[current.getX()][current.getY()]=false;
-                        current=node;
+                    } else {
+                        maze[current.getX()][current.getY()] = false;
+                        current = node;
                     }
                 }
-                if(current.isEqualWith(start)){
-                    solution="";
+                if (current.isEqualWith(start)&&detectRoad(current).isEmpty()) {
+                    solution = "";
                     break;
                 }
-            }
-            else{
-                Position selectPath=selectable.get(0);
+            } else {
+                Position selectPath = selectable.get(0);
                 selectable.remove(0);
                 cross.push(current);
-                maze[current.getX()][current.getY()]=false;
+                maze[current.getX()][current.getY()] = false;
                 path.push(current);
-                current=selectPath;
+                current = selectPath;
             }
         }
-        if(!current.isEqualWith(start))
+        if (!current.isEqualWith(start))
             path.push(current);
 
         for (Position iterable_element : path) {
-            solution+="{"+iterable_element.getX()+","+iterable_element.getY()+"}\n";
+            solution += "{" + iterable_element.getX() + "," + iterable_element.getY() + "}\n";
         }
     }
 
-    private ArrayList<Position> detectRoad(Position p){
-        ArrayList<Position> res=new ArrayList<>();
-        if(positionValid(new Position(p.getX(), p.getY()+1)))
-            res.add(new Position(p.getX(), p.getY()+1));
-        if(positionValid(new Position(p.getX()+1, p.getY())))
-            res.add(new Position(p.getX()+1, p.getY()));
-        if(positionValid(new Position(p.getX(), p.getY()-1)))
-            res.add(new Position(p.getX(), p.getY()-1));
-        if(positionValid(new Position(p.getX()-1, p.getY())))
-            res.add(new Position(p.getX()-1, p.getY()));
+    private ArrayList<Position> detectRoad(Position p) {
+        ArrayList<Position> res = new ArrayList<>();
+        if (positionValid(new Position(p.getX(), p.getY() + 1)))
+            res.add(new Position(p.getX(), p.getY() + 1));
+        if (positionValid(new Position(p.getX() + 1, p.getY())))
+            res.add(new Position(p.getX() + 1, p.getY()));
+        if (positionValid(new Position(p.getX(), p.getY() - 1)))
+            res.add(new Position(p.getX(), p.getY() - 1));
+        if (positionValid(new Position(p.getX() - 1, p.getY())))
+            res.add(new Position(p.getX() - 1, p.getY()));
         return res;
     }
 
-    private boolean positionValid(Position p){
-        if(p.getX()>=0&&p.getX()<height)
-            if(p.getY()>=0&&p.getY()<width)
-                if(maze[p.getX()][p.getY()]==true)
+    private boolean positionValid(Position p) {
+        if (p.getX() >= 0 && p.getX() < height)
+            if (p.getY() >= 0 && p.getY() < width)
+                if (maze[p.getX()][p.getY()] == true)
                     return true;
         return false;
     }
 
-    public static void main(String[] args){
-        int testDim=100;
-        DeepSearchMazeSolver s=new DeepSearchMazeSolver();
-        MazeGenerator maze=new MazeGenerator(testDim);
-        maze.generateMaze();
-        int[] startNode={0,0};
-        int[] endNode={testDim-1,testDim-1};
-        s.loadMaze(getArrayRawMaze(maze,testDim),startNode,endNode);
-        System.out.println(maze.getRawMaze());
-        System.out.println(s.getSolution());
+    public static void main(String[] args) {
+        int maxRange = 20;
+        int testCounts = 10;
+        for (int testCount = 1; testCount < testCounts; testCount++) {
+            int testDim = 5+(new Random()).nextInt(10000) % (maxRange-5);
+            DeepSearchMazeSolver s = new DeepSearchMazeSolver();
+            MazeGenerator maze = new MazeGenerator(testDim);
+            maze.generateMaze();
+            boolean[][] mazeRawArray = getArrayRawMaze(maze, testDim);
+            Position startNode = getRandomNode(mazeRawArray);
+            Position endNode = getRandomNode(mazeRawArray);
+            s.loadMaze(getArrayRawMaze(maze, testDim), startNode , endNode);
+            System.out.println(maze.getRawMaze());
+            System.out.println(String.format("start:%s", startNode));
+            System.out.println(String.format("end:%s\nSolution:", endNode));
+            System.out.println(s.getSolution());
+        }
+    }
+    public static Position getRandomNode(boolean[][] mazeRawArray){
+        int maze_width=mazeRawArray[0].length;
+        int maze_height=mazeRawArray.length;
+        int x=0;
+        int y=0;
+        Position p=new Position(0, 0);
+        boolean success=false;
+        while(!success){
+            x=((new Random()).nextInt(1010))%maze_height;
+            y=((new Random()).nextInt(1024))%maze_width;
+            p= new Position(x, y);
+            if (mazeRawArray[p.getX()][p.getY()] == true)
+                success=true;
+            else
+                success=false;
+        }
+        return p;
     }
 
-    private static boolean[][] getArrayRawMaze(MazeGenerator maze,int mazeDim){
-        String mazeStr=maze.getRawMaze();
+    private static boolean[][] getArrayRawMaze(MazeGenerator maze, int mazeDim) {
+        String mazeStr = maze.getRawMaze();
         String[] mazeStrs = mazeStr.split("\n");
-        boolean[][] res=new boolean[mazeDim][mazeDim];
-        int x=0,y=0;
-        for(String str : mazeStrs){
-            y=0;
-            str=str.substring(1, str.length()-1);
-            String[] strs =str.split(", ");
-            for(String s:strs) {
-                res[x][y]=Integer.parseInt(s)==1?true:false;
+        boolean[][] res = new boolean[mazeDim][mazeDim];
+        int x = 0, y = 0;
+        for (String str : mazeStrs) {
+            y = 0;
+            str = str.substring(1, str.length() - 1);
+            String[] strs = str.split(", ");
+            for (String s : strs) {
+                res[x][y] = Integer.parseInt(s) == 1 ? true : false;
                 y++;
             }
             x++;
         }
         return res;
     }
+
+    public static class Position {
+        private int x;
+        private int y;
     
+        public Position(int a, int b) {
+            x = a;
+            y = b;
+        }
+    
+        public int getX() {
+            return x;
+        }
+    
+        public int getY() {
+            return y;
+        }
+    
+        public boolean isEqualWith(Position p) {
+            return (p.getX() == this.x) && (p.getY() == this.y);
+        }
+
+        @Override
+        public String toString() {
+            return "{"+String.valueOf(x)+","+String.valueOf(y)+"}";
+        }
+    }
+
 }
 
-class Position{
-    private int x;
-    private int y;
-    public Position(int a,int b){
-        x=a;
-        y=b;
-    }
-    public int getX() {
-        return x;
-    }
-    public int getY() {
-        return y;
-    }
-    public boolean isEqualWith(Position p){
-        return (p.getX()==this.x)&&(p.getY()==this.y);
-    }
-}
+
