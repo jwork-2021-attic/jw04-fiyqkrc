@@ -7,6 +7,7 @@ import com.anish.calabashbros.Calabash;
 import com.anish.calabashbros.World;
 import com.anish.calabashbros.Wall;
 import com.anish.calabashbros.DeepSearchMazeSolver;
+import com.anish.calabashbros.MazeSolver;
 import com.anish.calabashbros.Thing;
 
 import mazeGenerator.MazeGenerator;
@@ -31,8 +32,10 @@ public class WorldScreen implements Screen {
                     world.put(wall, x, y);
                 }
             }
-        DeepSearchMazeSolver solver=new DeepSearchMazeSolver();
-        solver.loadMaze(mazeArray);
+        MazeSolver solver=new DeepSearchMazeSolver();
+        int[] start={0,0};
+        int[] end={mazeArray.length-1,mazeArray[0].length-1};
+        solver.loadMaze(mazeArray,start,end);
         String solution=solver.getSolution();
         sortSteps=solution.split("\n");
     }

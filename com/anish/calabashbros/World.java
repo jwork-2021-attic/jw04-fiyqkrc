@@ -2,8 +2,8 @@ package com.anish.calabashbros;
 
 public class World {
 
-    public static final int WIDTH = 60;
-    public static final int HEIGHT = 60;
+    public static final int WIDTH = 70;
+    public static final int HEIGHT = 70;
 
     private Tile<Thing>[][] tiles;
 

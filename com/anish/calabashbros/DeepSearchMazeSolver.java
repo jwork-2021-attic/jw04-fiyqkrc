@@ -1,6 +1,7 @@
 package com.anish.calabashbros;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Stack;
 
 import mazeGenerator.*;
@@ -10,9 +11,14 @@ public class DeepSearchMazeSolver implements MazeSolver{
     private boolean maze[][];
     private String solution="";
 
+    private Position start;
+    private Position end;
+
     @Override
-    public void loadMaze(boolean[][] maze) {
+    public void loadMaze(boolean[][] maze,int[] start,int[] end) {
         this.maze=maze;
+        this.start=new Position(start[0], start[1]);
+        this.end=new Position(end[0], end[1]);
     }
 
     @Override
@@ -34,10 +40,9 @@ public class DeepSearchMazeSolver implements MazeSolver{
         height=maze.length;
         Stack<Position> cross=new Stack<>();
         Stack<Position> path=new Stack<>();
-        Position start =new Position(0, 0);
 
         Position current=start;
-        while(!current.isEqualWith(new Position(height-1, width-1))){
+        while(!current.isEqualWith(end)){
             ArrayList<Position> selectable=detectRoad(current);
             if(selectable.isEmpty()){
                 while(!path.isEmpty()){
@@ -97,10 +102,13 @@ public class DeepSearchMazeSolver implements MazeSolver{
     }
 
     public static void main(String[] args){
+        int testDim=100;
         DeepSearchMazeSolver s=new DeepSearchMazeSolver();
-        MazeGenerator maze=new MazeGenerator(20);
+        MazeGenerator maze=new MazeGenerator(testDim);
         maze.generateMaze();
-        s.loadMaze(getArrayRawMaze(maze,20));
+        int[] startNode={0,0};
+        int[] endNode={testDim-1,testDim-1};
+        s.loadMaze(getArrayRawMaze(maze,testDim),startNode,endNode);
         System.out.println(maze.getRawMaze());
         System.out.println(s.getSolution());
     }
